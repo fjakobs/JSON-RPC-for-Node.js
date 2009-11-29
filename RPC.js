@@ -1,3 +1,14 @@
+/**
+ * JOSN-RPC 1.0 implementation running on Node.js
+ * 
+ * http://json-rpc.org/wiki/specification
+ * http://nodejs.org/
+ * 
+ * Creator: Martin Wittemann
+ */
+ 
+ // TODO: Add a way to use JSON-RPC 2.0 (proposal) 
+ 
 var sys = require('sys'), 
    http = require('http');
    
@@ -6,6 +17,7 @@ var self = this;
  
 
 http.createServer(function (req, res) {
+  
   res.sendHeader(200, {'Content-Type': 'application/jsonrequest'});
   
   var rpcRequest = JSON.parse(req.uri.params.q);
@@ -55,7 +67,7 @@ var createError = function(code, message, data) {
 /**
  * RPC-Methods
  */ 
-
+// TODO: move the method specification to a separate file
 this.echo = function(a) {
   return a;
 }
