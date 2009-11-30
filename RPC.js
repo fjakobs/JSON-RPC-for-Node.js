@@ -1,6 +1,9 @@
 /**
  * JOSN-RPC 1.0 implementation running on Node.js
  * 
+ * Ther service file to includ must be given on the command line.
+ * Example: node JSON-RPC/RPC.js ./service
+ * 
  * http://json-rpc.org/wiki/specification
  * http://nodejs.org/
  * 
@@ -8,22 +11,25 @@
  */
  
  // TODO: Add a way to use JSON-RPC 2.0 (proposal) 
- 
+
+// require the system stuff 
 var sys = require('sys'), 
    http = require('http');
    
- 
-var self = this;
- 
+// include the service file
+var serviceFile = process.ARGV[2];
+var service = require(serviceFile);
 
-http.createServer(function (req, res) {
+// create the server
+http.createServer(function (req, res) {  
   
-  res.sendHeader(200, {'Content-Type': 'application/jsonrequest'});
+  res.sendHeader(200, {'Content-Type': 'text/plain'});
   
+  // TODO: use POST requests, not GET
   var rpcRequest = JSON.parse(req.uri.params.q);
   
   try {
-    var result = self[rpcRequest.method].apply(self, rpcRequest.params);    
+    var result = service[rpcRequest.method].apply(service, rpcRequest.params);    
   } catch (e) {
     // TODO propper error handing
     var error = createError(1, "", "");
@@ -32,7 +38,6 @@ http.createServer(function (req, res) {
   if (rpcRequest.id != null) {
     var rpsRespone = createResponse(result, error, rpcRequest.id);
     res.sendBody(sys.inspect(rpsRespone));
-    res.finish();
   }
   
   res.finish();    
@@ -56,26 +61,4 @@ var createError = function(code, message, data) {
     message: message,
     data: data
   };
-}
-
-
-
-
-
-
-
-/**
- * RPC-Methods
- */ 
-// TODO: move the method specification to a separate file
-this.echo = function(a) {
-  return a;
-}
-
-this.add = function(a, b) {
-  return a + b;
-}
-
-this.note = function(a, b) {
-  sys.debug("handeMessage: " + a + " - " + b + " - ");
 }
