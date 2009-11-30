@@ -5,6 +5,9 @@
  * Example: node JSON-RPC/RPC.js ./service
  * 
  * http://json-rpc.org/wiki/specification
+ * http://groups.google.com/group/json-rpc/web/json-rpc-1-2-proposal
+ * http://groups.google.com/group/json-rpc/web/json-rpc-over-http
+ * 
  * http://nodejs.org/
  * 
  * Creator: Martin Wittemann
@@ -23,6 +26,7 @@ var service = require(serviceFile);
 // create the server
 http.createServer(function (req, res) {  
   
+  // TODO: set the proper content type (application/json-rpc)
   res.sendHeader(200, {'Content-Type': 'text/plain'});
   
   // TODO: use POST requests, not GET
