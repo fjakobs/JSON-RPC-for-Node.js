@@ -29,11 +29,12 @@ http.createServer(function (req, res) {
   // TODO: set the proper content type (application/json-rpc)
   res.sendHeader(200, {'Content-Type': 'text/plain'});
   
-  // TODO: use POST requests, not GET
+  // TODO: implement propper GET Parameters AND POST request handling
   var rpcRequest = JSON.parse(req.uri.params.q);
   
   try {
-    var result = service[rpcRequest.method].apply(service, rpcRequest.params);    
+    var result = service[rpcRequest.method].apply(service, rpcRequest.params);
+    // TODO: Check for async functions (promises)
   } catch (e) {
     // TODO propper error handing
     var error = createError(1, "", "");
