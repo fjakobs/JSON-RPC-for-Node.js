@@ -17,6 +17,7 @@ this.note = function(a, b) {
 }
 
 this.ls = function() {
+  // TODO: make a true async call
   var ls = sys.exec("ls .").wait();
   return ls;
 }
