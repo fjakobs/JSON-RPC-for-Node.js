@@ -21,16 +21,39 @@ var sys = require('sys'),
    
 // include the service file
 var serviceFile = process.ARGV[2];
+if (!serviceFile) {
+  sys.puts("No file for the service is given.");
+  return;
+} else if (serviceFile.charAt(0) != ".") {
+  sys.puts("Filepath does not start with a . ");  
+  return;  
+} else if (serviceFile.indexOf(".js") != -1) {
+  sys.puts("Please omit .js");  
+  return;  
+}
 var service = require(serviceFile);
 
+
 // create the server
-http.createServer(function (req, res) {  
+http.createServer(function (req, res) {
+    
+  // handle GET requests
+  if (req.method === "GET" && req.uri.params.method) {
+    var rpcRequest = {
+      method: req.uri.params.method,
+      params: JSON.parse(req.uri.params.params),
+      id: req.uri.params.id
+    };
+  } else {
+    // TODO: implement POST Parameters request handling
+    res.sendHeader(200, {'Content-Type': 'text/plain'});    
+    res.sendBody("POST currently not supported");    
+    res.finish();
+    return;
+  } 
   
   // TODO: set the proper content type (application/json-rpc)
   res.sendHeader(200, {'Content-Type': 'text/plain'});
-  
-  // TODO: implement propper GET Parameters AND POST request handling
-  var rpcRequest = JSON.parse(req.uri.params.q);
   
   try {
     var result = service[rpcRequest.method].apply(service, rpcRequest.params);
@@ -40,9 +63,10 @@ http.createServer(function (req, res) {
     var error = createError(1, "", "");
   }
   
+  // check for id's (needs response)
   if (rpcRequest.id != null) {
-    var rpsRespone = createResponse(result, error, rpcRequest.id);
-    res.sendBody(sys.inspect(rpsRespone));
+    var rpcRespone = createResponse(result, error, rpcRequest.id);
+    res.sendBody(sys.inspect(rpcRespone));
   }
   
   res.finish();    

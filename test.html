@@ -11,14 +11,27 @@
 </head>
 <body>
 
-  <!-- TODO : Make another field with a POST request -->  
-  <form action="http://localhost:8000/" method="GET" accept-charset="utf-8">
-
-    <p>
-      <textarea name="q" cols="50" rows="10">{"method": "echo", "params": ["Hello all!"], "id": 99}</textarea>
-    </p>
-    <p><input type="submit" value="&rarr;"></p>
-  </form>
+  <table border="0" cellspacing="5" cellpadding="5" style="width: 500px">
+    <tr><th>GET</th><th>POST</th></tr>
+    <tr>
+      <td>
+        <form action="http://localhost:8000/" method="GET" accept-charset="utf-8">
+          <p><label for="method">method</label>: <input type="text" name="method" value="echo" id="method"></p>
+          <p><label for="params">params</label>: <input type="text" name="params" value="['abc']" id="params"></p>
+          <p><label for="id">id</label>: <input type="text" name="id" value="99" id="id"></p>
+          <p><input type="submit" value="&rarr;"></p>
+        </form>
+      </td>
+      <td>
+        <form action="http://localhost:8000/" method="POST" accept-charset="utf-8">
+          <p>
+            <textarea name="q" cols="30" rows="4">{"method": "echo", "params": ["Hello all!"], "id": 99}</textarea>
+          </p>
+          <p><input type="submit" value="&rarr;"></p>
+        </form>        
+      </td>
+    </tr> 
+  </table>
   
   <p>{"method": "note", "params": ["user1", "we were just talking"], "id": null}</p>
   <p>{"method": "echo", "params": ["Hello all!"], "id": 99}</p>
