@@ -37,6 +37,8 @@ var service = require(serviceFile);
 // create the server
 http.createServer(function (req, res) {
     
+  res.sendHeader(200, {'Content-Type': 'application/json-rpc'});  
+  
   // handle GET requests
   if (req.method === "GET" && req.uri.params.method) {
     var rpcRequest = {
@@ -44,16 +46,22 @@ http.createServer(function (req, res) {
       params: JSON.parse(req.uri.params.params),
       id: req.uri.params.id
     };
+  // handle POST requests
   } else {
     // TODO: implement POST Parameters request handling
-    res.sendHeader(200, {'Content-Type': 'text/plain'});    
-    res.sendBody("POST currently not supported");    
-    res.finish();
+    req.setBodyEncoding("utf8");
+    var body = "";
+    req.addListener("body", function(chunk) {
+      body += chunk;
+    });
+
+    req.addListener("complete", function() {
+      var rpcRequest = JSON.parse(body);
+      res.sendBody(JSON.stringify(rpcRequest));
+      res.finish();
+    });    
     return;
   } 
-  
-  // TODO: set the proper content type (application/json-rpc)
-  res.sendHeader(200, {'Content-Type': 'text/plain'});
   
   try {
     var result = service[rpcRequest.method].apply(service, rpcRequest.params);
@@ -66,9 +74,9 @@ http.createServer(function (req, res) {
   // check for id's (needs response)
   if (rpcRequest.id != null) {
     var rpcRespone = createResponse(result, error, rpcRequest.id);
-    res.sendBody(sys.inspect(rpcRespone));
+    res.sendBody(JSON.stringify(rpcRespone));
   }
-  
+
   res.finish();    
 
 }).listen(8000);
