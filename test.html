@@ -62,6 +62,14 @@
           document.getElementById("result").innerHTML = (xhr.responseText);
         } else if (xhr.readyState == 4 && xhr.status == 204) {
           document.getElementById("result").innerHTML = ("Notification send!");          
+        } else if (xhr.readyState == 4 && (
+          xhr.status == 500 ||
+          xhr.status == 400 ||
+          xhr.status == 404
+        )) {
+          document.getElementById("result").innerHTML = (
+            "<span style='color: red;'>" + xhr.responseText + "</span>"
+          );
         }
       }
       xhr.send(data);

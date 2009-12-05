@@ -39,11 +39,19 @@ http.createServer(function (req, res) {
     
   // handle GET requests
   if (req.method === "GET" && req.uri.params.method) {
-    var rpcRequest = {
-      method: req.uri.params.method,
-      params: JSON.parse(req.uri.params.params),
-      id: req.uri.params.id
-    };
+    try {
+      var rpcRequest = {
+        method: req.uri.params.method,
+        params: JSON.parse(req.uri.params.params),
+        id: req.uri.params.id
+      };      
+    } catch (e) {
+      parseError(res, null);
+      return;
+    }
+    checkValidRequest(rpcRequest, res);
+    processRequest(rpcRequest, res);
+    
   // handle POST requests
   } else {
     req.setBodyEncoding("utf8");
@@ -53,14 +61,17 @@ http.createServer(function (req, res) {
     });
 
     req.addListener("complete", function() {
-      var rpcRequest = JSON.parse(body);
+      try {
+        var rpcRequest = JSON.parse(body);        
+      } catch (e) {
+        parseError(res, null);
+        return;
+      }
+      checkValidRequest(rpcRequest, res);      
       processRequest(rpcRequest, res);
     });    
     return;
   } 
-  
-  processRequest(rpcRequest, res);
-
 }).listen(8000);
 sys.puts('Server running at http://127.0.0.1:8000/');
 
@@ -68,29 +79,32 @@ sys.puts('Server running at http://127.0.0.1:8000/');
 var processRequest = function(rpcRequest, res) {
   
   try {
+    // check for param count
+    if (service[rpcRequest.method].length != rpcRequest.params.length) {
+      invalidParams(res, rpcRequest.id);
+      return;
+    }
+    
     var result = service[rpcRequest.method].apply(service, rpcRequest.params);
     
     // check for async requests
     if (result instanceof process.Promise) {
       // not failed
       result.addCallback(function(result) {
-        finishRequest(rpcRequest, res, result, error);        
+        finishRequest(rpcRequest, res, result, null);        
       });
       // failed
-      result.addErrback(function(e) {
-        // TODO propper error handling
-        var error = createError(1, "", "");        
-        finishRequest(rpcRequest, res, result, error);        
+      result.addErrback(function(e) {    
+        internalError(res, rpcRequest.id);
       });
       return;
     }
   } catch (e) {
-    // TODO propper error handing
-    var error = createError(1, "", "");
-    sys.puts(sys.inspect(e));
+    methodNotFound(res, rpcRequest.id);
+    return;
   }
   
-  finishRequest(rpcRequest, res, result, error);
+  finishRequest(rpcRequest, res, result, null);
 }
 
 
@@ -117,10 +131,64 @@ var createResponse = function(result, error, id) {
 }
 
 
-var createError = function(code, message, data) {
-  return {
-    code: code,
-    message: message,
-    data: data
+var checkValidRequest = function(rpcRequest, res) {
+  if (
+    !rpcRequest.method || 
+    !rpcRequest.params || 
+    rpcRequest.id === undefined ||
+    !(rpcRequest.params instanceof Array)
+  ) {          
+    invalidRequest(res, rpcRequest.id || null);
+  }
+}
+
+
+/**
+ * ERROR HANDLING
+ */
+var returnError = function(res, status, error, id) {
+  res.sendHeader(status, {'Content-Type': 'application/json-rpc'});      
+  var rpcRespone = createResponse(null, error, id);
+  res.sendBody(JSON.stringify(rpcRespone));
+  res.finish();  
+}
+
+var parseError = function(res, id) {
+  var error = {
+    code : -32700,
+    message : "Parse error."
   };
+  returnError(res, 500, error, id);
+}
+
+var invalidRequest = function(res, id) {
+  var error = {
+    code : -32600,
+    message : "Invalid Request."
+  };
+  returnError(res, 400, error, id);
+}
+
+var methodNotFound = function(res, id) {
+  var error = {
+    code : -32601,
+    message : "Method not found."
+  };
+  returnError(res, 404, error, id);  
+}
+
+var invalidParams = function(res, id) {
+  var error = {
+    code : -32602,
+    message : "Invalid params."
+  };
+  returnError(res, 500, error, id);  
+}
+
+var internalError = function(res, id) {
+  var error = {
+    code : -32603,
+    message : "Internal error."
+  };
+  returnError(res, 500, error, id);  
 }
