@@ -42,12 +42,7 @@
       xhr.setRequestHeader("Content-type", "application/json-rpc");
       xhr.setRequestHeader("Content-length", value.lenth);
       xhr.setRequestHeader("Connection", "close");
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState == 4 && xhr.status == 200) {
-          document.getElementById("result").innerHTML = (xhr.responseText);
-        }
-      }
-      xhr.send(value);
+      send(xhr, value);
 	  }
 	  
 	  function sendGet() {
@@ -58,12 +53,24 @@
       var xhr = new XMLHttpRequest();
       xhr.open("GET", "http://localhost:8000/" + params, true);
       xhr.setRequestHeader("Content-type", "application/json-rpc");
-      xhr.onreadystatechange = function() {
+      send(xhr);
+	  }
+	  
+	  function send (xhr, data) {
+	    xhr.onreadystatechange = function() {
         if (xhr.readyState == 4 && xhr.status == 200) {
           document.getElementById("result").innerHTML = (xhr.responseText);
+        } else if (xhr.readyState == 4 && xhr.status == 204) {
+          document.getElementById("result").innerHTML = ("Notification send!");          
         }
       }
-      xhr.send(null);	    
+      xhr.send(data);
+	  }
+	  
+	  function filin(button) {
+	    var value = button.value;
+      // set post data
+      document.getElementById("postData").value = value;
 	  }
 	</script>
 </head>
@@ -80,18 +87,19 @@
       </td>
       <td> 
         <p>
-          <textarea id="postData" cols="30" rows="4">{"method": "echo", "params": ["Hello all!"], "id": 99}</textarea>
+          <textarea id="postData" cols="30" rows="4">{"method": "echo", "params": ["abc"], "id": "99"}</textarea>
         </p>
         <p><input type="submit" value="&rarr;" onClick="sendPost()"></p>
       </td>
     </tr> 
   </table>
   <h3>Results</h3>
-  <div id="result"></div>
+  <input type="button" value="clear" onclick="document.getElementById('result').innerHTML = '';">
+  <span id="result"></span>
   <h2>Test-Requests</h2>
-  <p>{"method": "note", "params": ["user1", "we were just talking"], "id": null}</p>
-  <p>{"method": "echo", "params": ["Hello all!"], "id": 99}</p>
-  <p>{"method": "add", "params": [1, 2], "id": 111}</p>  
+  <input onclick="filin(this)" type='button' value='{"method": "note", "params": ["user1", "we were just talking"], "id": null}'><br>
+  <input onclick="filin(this)" type='button' value='{"method": "echo", "params": ["Hello all!"], "id": 99}'><br>
+  <input onclick="filin(this)" type='button' value='{"method": "add", "params": [1, 2], "id": 111}'> 
 
 </body>
 </html>
