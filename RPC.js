@@ -46,7 +46,6 @@ http.createServer(function (req, res) {
     };
   // handle POST requests
   } else {
-    // TODO: implement POST Parameters request handling
     req.setBodyEncoding("utf8");
     var body = "";
     req.addListener("body", function(chunk) {
@@ -70,12 +69,32 @@ var processRequest = function(rpcRequest, res) {
   
   try {
     var result = service[rpcRequest.method].apply(service, rpcRequest.params);
-    // TODO: Check for async functions (promises)
+    
+    // check for async requests
+    if (result instanceof process.Promise) {
+      // not failed
+      result.addCallback(function(result) {
+        finishRequest(rpcRequest, res, result, error);        
+      });
+      // failed
+      result.addErrback(function(e) {
+        // TODO propper error handling
+        var error = createError(1, "", "");        
+        finishRequest(rpcRequest, res, result, error);        
+      });
+      return;
+    }
   } catch (e) {
     // TODO propper error handing
     var error = createError(1, "", "");
+    sys.puts(sys.inspect(e));
   }
   
+  finishRequest(rpcRequest, res, result, error);
+}
+
+
+var finishRequest = function(rpcRequest, res, result, error) {
   // check for id's (needs response)
   if (rpcRequest.id != null) {
     res.sendHeader(200, {'Content-Type': 'application/json-rpc'});      
@@ -88,6 +107,7 @@ var processRequest = function(rpcRequest, res) {
   res.finish();  
 }
 
+
 var createResponse = function(result, error, id) {
   return {
     result : result || null,
@@ -95,6 +115,7 @@ var createResponse = function(result, error, id) {
     id : id
   };
 }
+
 
 var createError = function(code, message, data) {
   return {
