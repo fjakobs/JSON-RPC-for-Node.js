@@ -37,8 +37,6 @@ var service = require(serviceFile);
 // create the server
 http.createServer(function (req, res) {
     
-  res.sendHeader(200, {'Content-Type': 'application/json-rpc'});  
-  
   // handle GET requests
   if (req.method === "GET" && req.uri.params.method) {
     var rpcRequest = {
@@ -57,11 +55,18 @@ http.createServer(function (req, res) {
 
     req.addListener("complete", function() {
       var rpcRequest = JSON.parse(body);
-      res.sendBody(JSON.stringify(rpcRequest));
-      res.finish();
+      processRequest(rpcRequest, res);
     });    
     return;
   } 
+  
+  processRequest(rpcRequest, res);
+
+}).listen(8000);
+sys.puts('Server running at http://127.0.0.1:8000/');
+
+
+var processRequest = function(rpcRequest, res) {
   
   try {
     var result = service[rpcRequest.method].apply(service, rpcRequest.params);
@@ -73,16 +78,15 @@ http.createServer(function (req, res) {
   
   // check for id's (needs response)
   if (rpcRequest.id != null) {
+    res.sendHeader(200, {'Content-Type': 'application/json-rpc'});      
     var rpcRespone = createResponse(result, error, rpcRequest.id);
     res.sendBody(JSON.stringify(rpcRespone));
+  } else {
+    res.sendHeader(204, {'Connection': 'close'});
   }
 
-  res.finish();    
-
-}).listen(8000);
-sys.puts('Server running at http://127.0.0.1:8000/');
-
-
+  res.finish();  
+}
 
 var createResponse = function(result, error, id) {
   return {
