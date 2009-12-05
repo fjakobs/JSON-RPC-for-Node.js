@@ -16,8 +16,7 @@ this.note = function(a, b) {
   sys.debug("notification " + a + " - " + b);
 }
 
+// async call
 this.ls = function() {
-  // TODO: make a true async call
-  var ls = sys.exec("ls .").wait();
-  return ls;
+  return sys.exec("ls .");
 }
