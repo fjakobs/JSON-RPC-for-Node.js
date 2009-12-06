@@ -12,8 +12,6 @@
  * 
  * Creator: Martin Wittemann
  */
- 
- // TODO: Add a way to use JSON-RPC 2.0 (proposal) 
 
 // require the system stuff 
 var sys = require('sys'), 
@@ -81,7 +79,7 @@ var processRequest = function(rpcRequest, res) {
   try {
     // check for param count
     if (service[rpcRequest.method].length != rpcRequest.params.length) {
-      invalidParams(res, rpcRequest.id);
+      invalidParams(res, rpcRequest);
       return;
     }
     
@@ -95,12 +93,12 @@ var processRequest = function(rpcRequest, res) {
       });
       // failed
       result.addErrback(function(e) {    
-        internalError(res, rpcRequest.id);
+        internalError(res, rpcRequest);
       });
       return;
     }
   } catch (e) {
-    methodNotFound(res, rpcRequest.id);
+    methodNotFound(res, rpcRequest);
     return;
   }
   
@@ -111,8 +109,8 @@ var processRequest = function(rpcRequest, res) {
 var finishRequest = function(rpcRequest, res, result, error) {
   // check for id's (needs response)
   if (rpcRequest.id != null) {
-    res.sendHeader(200, {'Content-Type': 'application/json-rpc'});      
-    var rpcRespone = createResponse(result, error, rpcRequest.id);
+    res.sendHeader(200, {'Content-Type': 'application/json-rpc'});
+    var rpcRespone = createResponse(result, error, rpcRequest);
     res.sendBody(JSON.stringify(rpcRespone));
   } else {
     res.sendHeader(204, {'Connection': 'close'});
@@ -122,12 +120,21 @@ var finishRequest = function(rpcRequest, res, result, error) {
 }
 
 
-var createResponse = function(result, error, id) {
-  return {
-    result : result || null,
-    error : error || null,
-    id : id
-  };
+var createResponse = function(result, error, rpcRequest) {
+  if (rpcRequest && rpcRequest.jsonrpc === "2.0") {
+    var rpcResponse = {
+      jsonrpc: "2.0"
+    };
+    error != null ? rpcResponse.error = error : rpcResponse.result = result
+    rpcResponse.id = rpcRequest.id || null;
+    return rpcResponse;
+  } else {
+    return {
+      result : result || null,
+      error : error || null,
+      id : rpcRequest && rpcRequest.id ? rpcRequest.id : null 
+    };    
+  }
 }
 
 
@@ -138,7 +145,7 @@ var checkValidRequest = function(rpcRequest, res) {
     rpcRequest.id === undefined ||
     !(rpcRequest.params instanceof Array)
   ) {          
-    invalidRequest(res, rpcRequest.id || null);
+    invalidRequest(res, rpcRequest);
   }
 }
 
@@ -146,9 +153,9 @@ var checkValidRequest = function(rpcRequest, res) {
 /**
  * ERROR HANDLING
  */
-var sendError = function(res, status, error, id) {
+var sendError = function(res, status, error, request) {
   res.sendHeader(status, {'Content-Type': 'application/json-rpc'});      
-  var rpcRespone = createResponse(null, error, id);
+  var rpcRespone = createResponse(null, error, request);
   res.sendBody(JSON.stringify(rpcRespone));
   res.finish();  
 }
@@ -157,22 +164,22 @@ var createError = function(code, message) {
   return {code : code, message : message};
 }
 
-var parseError = function(res, id) {
-  sendError(res, 500, createError(-32700, "Parse error."), id);
+var parseError = function(res, request) {
+  sendError(res, 500, createError(-32700, "Parse error."), request);
 }
 
-var invalidRequest = function(res, id) {
-  sendError(res, 400, createError(-32600, "Invalid Request."), id);
+var invalidRequest = function(res, request) {
+  sendError(res, 400, createError(-32600, "Invalid Request."), request);
 }
 
-var methodNotFound = function(res, id) {
-  sendError(res, 404, createError(-32601, "Method not found."), id);  
+var methodNotFound = function(res, request) {
+  sendError(res, 404, createError(-32601, "Method not found."), request);  
 }
 
-var invalidParams = function(res, id) {
-  sendError(res, 500, createError(-32602, "Invalid params."), id);  
+var invalidParams = function(res, request) {
+  sendError(res, 500, createError(-32602, "Invalid params."), request);  
 }
 
-var internalError = function(res, id) {
-  sendError(res, 500, createError(-32603, "Internal error."), id);  
+var internalError = function(res, request) {
+  sendError(res, 500, createError(-32603, "Internal error."), request);  
 }

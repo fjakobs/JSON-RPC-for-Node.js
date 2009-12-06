@@ -53,17 +53,17 @@
         '{"result":null,"error":{"code":-32601,"message":"Method not found."},"id":58}',
         
       '{"jsonrpc": "2.0", "method": "add", "params": [42, 23], "id": 1}' : 
-        '{"jsonrpc": "2.0", "result": 65, "id": 1}',
-      '{"jsonrpc": "2.0", "method": "note", "params": [42, 23], "id": 2}' : 
+        '{"jsonrpc":"2.0","result":65,"id":1}',
+      '{"jsonrpc": "2.0", "method": "note", "params": [42, 23], "id": null}' : 
         'Notification send!',
       '{"jsonrpc": "2.0", "method": "foobar", "params": [], "id": "1"}' : 
-        '"jsonrpc": "2.0", "error": {"code": -32601, "message": "Method not found."}, "id": "1"}',
+        '{"jsonrpc":"2.0","error":{"code":-32601,"message":"Method not found."},"id":"1"}',
       '{"jsonrpc": "2.0", "method": "foobar, "params": "bar", "baz]' : 
-        '{"jsonrpc": "2.0", "error": {"code": -32700, "message": "Parse error."}, "id": null}',
+        '{"jsonrpc":"2.0","error":{"code":-32700,"message":"Parse error."},"id":null}',
       '[1,2,3]' : 
-        '{"jsonrpc": "2.0", "error": {"code": -32600, "message": "Invalid Request."}, "id": null}',
+        '{"jsonrpc":"2.0","error":{"code":-32600,"message":"Invalid Request."},"id":null}',
       '[{"jsonrpc": "2.0", "method": "add", "params": [1, 2], "id": 1}, {"jsonrpc": "2.0", "method": "add", "params": [2, 3], "id": 2}]' : 
-        '[{"jsonrpc": "2.0", "result": 3, "id": 1},{"jsonrpc": "2.0", "result": 5, "id": 2}]'
+        '[{"jsonrpc":"2.0","result":3,"id":1},{"jsonrpc":"2.0","result":5,"id":2}]'
 	  } 
 	
 	
@@ -118,6 +118,7 @@
             document.getElementById("result").style.backgroundColor = "#33FF33";
           } else {
             document.getElementById("result").style.backgroundColor = "#FF3333";
+            document.getElementById("result").innerHTML += "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + valid;
           }
         }
       }
@@ -209,7 +210,7 @@
           </tr>
           <tr>
             <td>Notification:</td>
-            <td><input onclick="filin(this)" type='button' value='{"jsonrpc": "2.0", "method": "note", "params": [42, 23], "id": 2}'></td>
+            <td><input onclick="filin(this)" type='button' value='{"jsonrpc": "2.0", "method": "note", "params": [42, 23], "id": null}'></td>
           </tr>
           <tr>
             <td style="color: red;">Method Not Found:</td>
