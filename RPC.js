@@ -13,6 +13,9 @@
  * Creator: Martin Wittemann
  */
 
+// set the version of the JSON-RPC
+var version = "2.0";
+
 // require the system stuff 
 var sys = require('sys'), 
    http = require('http');
@@ -121,12 +124,12 @@ var finishRequest = function(rpcRequest, res, result, error) {
 
 
 var createResponse = function(result, error, rpcRequest) {
-  if (rpcRequest && rpcRequest.jsonrpc === "2.0") {
+  if (version === "2.0") {
     var rpcResponse = {
       jsonrpc: "2.0"
     };
     error != null ? rpcResponse.error = error : rpcResponse.result = result
-    rpcResponse.id = rpcRequest.id || null;
+    rpcResponse.id = rpcRequest && rpcRequest.id ? rpcRequest.id : null;
     return rpcResponse;
   } else {
     return {
