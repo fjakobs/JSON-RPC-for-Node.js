@@ -20,3 +20,8 @@ this.note = function(a, b) {
 this.ls = function() {
   return sys.exec("ls .");
 }
+
+// async call
+this.pwd = function() {
+  return sys.exec("pwd");
+}
