@@ -36,24 +36,34 @@
 	<script type="text/javascript" charset="utf-8">
 	  function sendPost() {
       var value = document.getElementById("postData").value;
-      
+      __sendPost(value);
+	  }
+	  
+	  
+	  function __sendPost(data) {
       var xhr = new XMLHttpRequest();
       xhr.open("POST", "http://localhost:8000/", true);
       xhr.setRequestHeader("Content-type", "application/json-rpc");
-      xhr.setRequestHeader("Content-length", value.lenth);
+      xhr.setRequestHeader("Content-length", data.lenth);
       xhr.setRequestHeader("Connection", "close");
-      send(xhr, value);
+      send(xhr, data);	    
 	  }
+	  
 	  
 	  function sendGet() {
       var params = "?" + "method=" + document.getElementById("method").value +
         "&params=" + document.getElementById("params").value +
         "&id=" + document.getElementById("id").value;
       
+        __sendGet(params);
+	  }
+	  
+	  
+	  function __sendGet(params) {
       var xhr = new XMLHttpRequest();
       xhr.open("GET", "http://localhost:8000/" + params, true);
       xhr.setRequestHeader("Content-type", "application/json-rpc");
-      send(xhr);
+      send(xhr);	    
 	  }
 	  
 	  function send (xhr, data) {
@@ -149,6 +159,38 @@
       <td valign="top">
         
         <h2>Test-Requests (POST, v2.0)</h2>
+        <table>
+          <tr>
+            <td>Position Parameter:</td>
+            <td><input onclick="filin(this)" type='button' value='{"jsonrpc": "2.0", "method": "add", "params": [42, 23], "id": 1}'></td>
+          </tr>
+          <tr>
+            <td>Named parameters:</td>
+            <td>(Not sure how to do that!)</td>
+          </tr>
+          <tr>
+            <td>Notification:</td>
+            <td><input onclick="filin(this)" type='button' value='{"jsonrpc": "2.0", "method": "note", "params": [42, 23], "id": 2}'></td>
+          </tr>
+          <tr>
+            <td style="color: red;">Method Not Found:</td>
+            <td><input onclick="filin(this)" type='button' value='{"jsonrpc": "2.0", "method": "foobar", "params": [], "id": 1}'></td>
+          </tr>   
+          <tr>
+            <td style="color: red;">Invalid JSON:</td>
+            <td><input onclick="filin(this)" type='button' value='{"jsonrpc": "2.0", "method": "foobar, "params": "bar", "baz]'></td>
+          </tr> 
+          <tr>      
+            <td style="color: red;">Invalid Request:</td>
+            <td><input onclick="filin(this)" type='button' value='[1,2,3]'></td>
+          </tr>
+          <tr>      
+            <td>Batch:</td>
+            <td><input onclick="filin(this)" type='button' value='[{"jsonrpc": "2.0", "method": "add", "params": [1, 2], "id": 1}, {"jsonrpc": "2.0", "method": "add", "params": [2, 3], "id": 2}]'></td>
+          </tr>          
+          
+                   
+        </table>
             
       </td>
     </tr>
