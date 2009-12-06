@@ -146,49 +146,33 @@ var checkValidRequest = function(rpcRequest, res) {
 /**
  * ERROR HANDLING
  */
-var returnError = function(res, status, error, id) {
+var sendError = function(res, status, error, id) {
   res.sendHeader(status, {'Content-Type': 'application/json-rpc'});      
   var rpcRespone = createResponse(null, error, id);
   res.sendBody(JSON.stringify(rpcRespone));
   res.finish();  
 }
 
+var createError = function(code, message) {
+  return {code : code, message : message};
+}
+
 var parseError = function(res, id) {
-  var error = {
-    code : -32700,
-    message : "Parse error."
-  };
-  returnError(res, 500, error, id);
+  sendError(res, 500, createError(-32700, "Parse error."), id);
 }
 
 var invalidRequest = function(res, id) {
-  var error = {
-    code : -32600,
-    message : "Invalid Request."
-  };
-  returnError(res, 400, error, id);
+  sendError(res, 400, createError(-32600, "Invalid Request."), id);
 }
 
 var methodNotFound = function(res, id) {
-  var error = {
-    code : -32601,
-    message : "Method not found."
-  };
-  returnError(res, 404, error, id);  
+  sendError(res, 404, createError(-32601, "Method not found."), id);  
 }
 
 var invalidParams = function(res, id) {
-  var error = {
-    code : -32602,
-    message : "Invalid params."
-  };
-  returnError(res, 500, error, id);  
+  sendError(res, 500, createError(-32602, "Invalid params."), id);  
 }
 
 var internalError = function(res, id) {
-  var error = {
-    code : -32603,
-    message : "Internal error."
-  };
-  returnError(res, 500, error, id);  
+  sendError(res, 500, createError(-32603, "Internal error."), id);  
 }
