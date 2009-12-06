@@ -79,6 +79,7 @@
 	    var value = button.value;
       // set post data
       document.getElementById("postData").value = value;
+      sendPost();
 	  }
 	</script>
 </head>
@@ -104,11 +105,54 @@
   <h3>Results</h3>
   <input type="button" value="clear" onclick="document.getElementById('result').innerHTML = '';">
   <span id="result"></span>
-  <h2>Test-Requests</h2>
-  <input onclick="filin(this)" type='button' value='{"method": "note", "params": ["user1", "we were just talking"], "id": null}'><br>
-  <input onclick="filin(this)" type='button' value='{"method": "echo", "params": ["Hello all!"], "id": 99}'><br>
-  <input onclick="filin(this)" type='button' value='{"method": "add", "params": [1, 2], "id": 111}'><br>
-  <input onclick="filin(this)" type='button' value='{"method": "ls", "params": [], "id": 58}'>   
+  <table>
+    <tr>
+      <td valign="top">
+        
+        <h2>Test-Requests (POST, v1.0)</h2>
+        <table>
+          <tr>
+            <td>Notification:</td>
+            <td><input onclick="filin(this)" type='button' value='{"method": "note", "params": ["user1", "we"], "id": null}'></td>
+          </tr>
+          <tr>
+            <td>Echo:</td>
+            <td><input onclick="filin(this)" type='button' value='{"method": "echo", "params": ["Hello all!"], "id": 99}'></td>
+          </tr>
+          <tr>
+            <td>Add:</td>
+            <td><input onclick="filin(this)" type='button' value='{"method": "add", "params": [1, 2], "id": 111}'></td>
+          </tr>
+          <tr>      
+            <td>Async:</td>
+            <td><input onclick="filin(this)" type='button' value='{"method": "pwd", "params": [], "id": 58}'></td>
+          </tr>
+          <tr>      
+            <td style="color: red;">Parse Error:</td>
+            <td><input onclick="filin(this)" type='button' value='xxx{"method": "ls", "params": [], "id": 58}'></td>
+          </tr>
+          <tr>      
+            <td style="color: red;">Invalid Request:</td>
+            <td><input onclick="filin(this)" type='button' value='{"method": "ls", "id": 58}'></td>
+          </tr>
+          <tr>      
+            <td style="color: red;">Method Not Found:</td>
+            <td><input onclick="filin(this)" type='button' value='{"method": "xyz", params: [], "id": 58}'></td>
+          </tr>
+          <tr>      
+            <td style="color: red;">Invalid Params:</td>
+            <td><input onclick="filin(this)" type='button' value='{"method": "echo", params: [], "id": 58}'></td>
+          </tr>    
+        </table>
+        
+      <td/>
+      <td valign="top">
+        
+        <h2>Test-Requests (POST, v2.0)</h2>
+            
+      </td>
+    </tr>
+  </table>
 
 </body>
 </html>
