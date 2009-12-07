@@ -50,7 +50,6 @@ http.createServer(function (req, res) {
       parseError(res, null);
       return;
     }
-    checkValidRequest(rpcRequest, res);
     processRequest(rpcRequest, res);
     
   // handle POST requests
@@ -68,7 +67,6 @@ http.createServer(function (req, res) {
         parseError(res, null);
         return;
       }
-      checkValidRequest(rpcRequest, res);      
       processRequest(rpcRequest, res);
     });    
     return;
@@ -78,6 +76,8 @@ sys.puts('Server running at http://127.0.0.1:8000/');
 
 
 var processRequest = function(rpcRequest, res) {
+  // validate
+  checkValidRequest(rpcRequest, res);  
   
   try {
     // check for param count
