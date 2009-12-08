@@ -186,3 +186,30 @@ var invalidParams = function(res, request) {
 var internalError = function(res, request) {
   sendError(res, 500, createError(-32603, "Internal error."), request);  
 }
+
+
+/**
+ * FUNCTION MAGIC
+ */
+var named = function(fcn, argNames, defaults) 
+{
+  return function(args) {
+    var argList = [];
+    argNames.forEach(function(argName) {
+      var value = args[argName];
+      if (value === undefined) {
+        value = defaults[argName];
+      }
+      argList.push(value);
+    });
+    
+    return fcn.apply(this, argList);
+  }
+}
+
+var getArgumentNames = function(fcn) {
+  var code = fcn.toString();
+  args = code.slice(0, code.indexOf(")")).split(/\(|\s*,\s*/);
+  args.shift();
+  return args;
+}
